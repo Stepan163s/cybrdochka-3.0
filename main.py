@@ -15,29 +15,69 @@ from aiogram.types import (
     ReplyKeyboardRemove,
 )
 
-from function import checkUser, getUsername, welcom, regUser, checkAdmin
+from function import checkUser, welcom, regUser, checkAdmin, welcom_adm, SendPhotoChannel, SendTextChannel, no
 
 bot = Bot(token='env.tokem')
 dp = Dispatcher()
 
 
-# обработка команды /start
-@dp.message(F.text == '/start')
-async def cmd_start(message: Message):
-    user_id = message.from_user.id
-    result = await checkUser(user_id)          #проверяем есть ли юзер в базе данных checkUser() -> bool:
-    if result:
-        adm = checkAdmin(user_id)  #проверяем админ ли юзер checkAdmin() -> bool:
-        name = await getUsername(user_id)
-        await welcom(message, name)
-    else:
-        await regUser(user_id)
-    
-#обработка фото
-@dp.message(F.photo)
-async def eho_photo(message: Message):
+
+@dp.message(F.text == '/start')                #обработка команды /start
+async def start(message: Message):
     user_id = message.from_user.id             #получаем user_id -> int:
     result = await checkUser(user_id)          #проверяем есть ли юзер в базе данных checkUser(user_id) -> bool:
+    if result:
+        adm = checkAdmin(user_id)              #проверяем админ ли юзер checkAdmin(user_id) -> bool:
+        if adm:
+            await welcom_adm(message, user_id) #отправляем приветсвенное сообщение админу
+        else:
+            await welcom(message,user_id)      #отправляем приветсвенное сообщение пользователю
+    else:
+        await regUser(user_id)                 #добавляем пользователя в базу данных
+    
+
+@dp.message(F.text)                            #обработка текста
+async def start(message: Message):
+    user_id = message.from_user.id             #получаем user_id -> int:
+    result = await checkUser(user_id)          #проверяем есть ли юзер в базе данных checkUser(user_id) -> bool:
+    if result:
+        adm = checkAdmin(user_id)              #проверяем админ ли юзер checkAdmin(user_id) -> bool:
+        if adm:
+            await SendTextChannel(message) #отправляем приветсвенное сообщение админу
+        else:
+            await no(message,user_id)          #отправляем сообщение что не понимаем пользователя
+
+
+
+
+@dp.message(F.photo)                           #обработка фото
+async def photo(message: Message):
+    user_id = message.from_user.id             #получаем user_id -> int:
+    result = await checkUser(user_id)          #проверяем есть ли юзер в базе данных checkUser(user_id) -> bool:
+    if result:
+        adm = checkAdmin(user_id)              #проверяем админ ли юзер checkAdmin(user_id) -> bool:
+        if adm:
+            await welcom_adm(message, user_id) #отправляем приветсвенное сообщение админу
+        else:
+            await welcom(message, user_id)     #отправляем приветсвенное сообщение пользователю
+    else:
+        await regUser(user_id)                 #добавляем пользователя в базу данных
+
+
+@dp.message(F.video)                           #обработка видео
+async def video(message: Message):
+    user_id = message.from_user.id             #получаем user_id -> int:
+    result = await checkUser(user_id)          #проверяем есть ли юзер в базе данных checkUser(user_id) -> bool:
+    if result:
+        adm = checkAdmin(user_id)              #проверяем админ ли юзер checkAdmin(user_id) -> bool:
+        if adm:
+            await welcom_adm(message, user_id) #отправляем приветсвенное сообщение админу
+        else:
+            await welcom(message, user_id)     #отправляем приветсвенное сообщение пользователю
+    else:
+        await regUser(user_id)                 #добавляем пользователя в базу данных
+
+
 
 
 
@@ -51,3 +91,15 @@ if __name__ == '__main__':
         asyncio.run(main())
     except KeyboardInterrupt:
         print('Exit')
+
+
+
+
+
+
+
+
+
+
+
+
